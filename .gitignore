@@ -1,0 +1,14 @@
+# Basura del sistema operativo
+Thumbs.db
+ehthumbs.db
+desktop.ini
+.DS_Store
+
+# Dependencias y builds locales
+node_modules/
+.cache/
+
+# Editores
+.vscode/
+.idea/
+*.swp
