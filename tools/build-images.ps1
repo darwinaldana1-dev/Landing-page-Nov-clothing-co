@@ -105,38 +105,48 @@ Export-Flyer "Leggins.png" "flyer-leggins"
 Export-Flyer "Pantalon bota recta.png" "flyer-joggers"
 
 # ── Logo ─────────────────────────────────────────────────────────────────────
-# El wordmark es tinta oscura sobre blanco. Se usa la luminancia como canal
-# alfa, así los bordes quedan suaves y el logo funciona sobre cualquier fondo.
+# El logo es tinta oscura sobre blanco. Se recorta al contenido y se usa la
+# luminancia como canal alfa, así los bordes quedan suaves y el logo funciona
+# sobre cualquier fondo.
 "Logo.png"
-$logo = [System.Drawing.Image]::FromFile((Join-Path $root "Logo.png"))
-$pair = New-Canvas 890 430
-$crop = $pair[0]; $g = $pair[1]
-$g.DrawImage($logo, (New-Object System.Drawing.Rectangle(0, 0, 890, 430)),
-                    (New-Object System.Drawing.Rectangle(170, 460, 890, 430)),
-                    [System.Drawing.GraphicsUnit]::Pixel)
-$g.Dispose(); $logo.Dispose()
-
-$transparent = New-Object System.Drawing.Bitmap(890, 430, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
-for ($py = 0; $py -lt 430; $py++) {
-  for ($px = 0; $px -lt 890; $px++) {
-    $c = $crop.GetPixel($px, $py)
+$logo = New-Object System.Drawing.Bitmap((Join-Path $root "Logo.png"))
+$minX = $logo.Width; $minY = $logo.Height; $maxX = 0; $maxY = 0
+for ($py = 0; $py -lt $logo.Height; $py++) {
+  for ($px = 0; $px -lt $logo.Width; $px++) {
+    $c = $logo.GetPixel($px, $py)
+    if ((0.299 * $c.R + 0.587 * $c.G + 0.114 * $c.B) -lt 200) {
+      if ($px -lt $minX) { $minX = $px }; if ($px -gt $maxX) { $maxX = $px }
+      if ($py -lt $minY) { $minY = $py }; if ($py -gt $maxY) { $maxY = $py }
+    }
+  }
+}
+$cw = $maxX - $minX + 1; $ch = $maxY - $minY + 1
+$transparent = New-Object System.Drawing.Bitmap($cw, $ch, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+for ($py = 0; $py -lt $ch; $py++) {
+  for ($px = 0; $px -lt $cw; $px++) {
+    $c = $logo.GetPixel($minX + $px, $minY + $py)
     $lum = (0.299 * $c.R + 0.587 * $c.G + 0.114 * $c.B)
     if ($lum -ge 232) { $a = 0 } else { $a = [int](255 - ($lum * 255 / 232)) }
     $transparent.SetPixel($px, $py, [System.Drawing.Color]::FromArgb($a, 29, 29, 31))
   }
 }
+$logo.Dispose()
 $transparent.Save((Join-Path $out "logo.png"), [System.Drawing.Imaging.ImageFormat]::Png)
-"  {0,-22} 890x430 con fondo transparente" -f "logo.png"
+"  {0,-22} {1}x{2} con fondo transparente" -f "logo.png", $cw, $ch
 
 # Versión opaca sobre crema, para favicon y og:image.
 $pair = New-Canvas 600 600
 $flat = $pair[0]; $g = $pair[1]
 $g.Clear([System.Drawing.ColorTranslator]::FromHtml("#f6f1e9"))
-$g.DrawImage($transparent, (New-Object System.Drawing.Rectangle(40, 205, 520, 251)))
+$g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+$boxW = 440; $boxH = 440
+$scale = [Math]::Min($boxW / $cw, $boxH / $ch)
+$dw = [int]($cw * $scale); $dh = [int]($ch * $scale)
+$g.DrawImage($transparent, (New-Object System.Drawing.Rectangle([int]((600 - $dw) / 2), [int]((600 - $dh) / 2), $dw, $dh)))
 $g.Dispose()
 Save-Jpeg $flat (Join-Path $out "logo.jpg") 92
 "  {0,-22} 600x600 sobre crema" -f "logo.jpg"
-$flat.Dispose(); $transparent.Dispose(); $crop.Dispose()
+$flat.Dispose(); $transparent.Dispose()
 
 ""
 "Listo. " + (Get-ChildItem $out).Count + " archivos en assets\img."
