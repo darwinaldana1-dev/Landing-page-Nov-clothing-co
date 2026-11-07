@@ -1,10 +1,10 @@
 {
   "site": {
-    "brand": "NOV Clothing Co.",
+    "brand": "Vanclad Clothing",
     "tagline": "Básicos que combinan con todo.",
     "logo": {
       "src": "./assets/img/logo.png",
-      "alt": "NOV Clothing Co."
+      "alt": "Vanclad Clothing"
     },
     "year": 2026
   },
@@ -14,7 +14,7 @@
     "display": "322 858 8954",
     "greeting": "¡Hola! 👋 Vengo de la página web y quiero información sobre:",
     "closing": "¿Me confirman precio, tallas y disponibilidad?",
-    "fallbackProduct": "los productos de NOV Clothing Co."
+    "fallbackProduct": "los productos de Vanclad Clothing"
   },
 
   "nav": {
@@ -266,7 +266,7 @@
       }
     ],
     "legal": [
-      "© {year} NOV Clothing Co. Todos los derechos reservados."
+      "© {year} Vanclad Clothing Todos los derechos reservados."
     ]
   },
 

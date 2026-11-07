@@ -1,4 +1,4 @@
-# NOV Clothing Co. — landing page
+# Vanclad Clothing — landing page
 
 Landing de una sola página para bodies, leggins y Jogger Vena, con la estructura
 tomada de `https://emsa.solucionem.com/` y **todo el contenido en un solo JSON**:
